@@ -11,15 +11,10 @@ class FetchOrders extends Command
     protected $description = 'Fetch all orders from Shopify using GraphQL Admin API bulk operation';
     public function handle()
     {
-    //   $shop = 'arsenal-store-1.myshopify.com';
       $apiVersion = '2025-04';
-    // $accessToken = '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';
-
       $shop  = $this->argument('shop');
       $accessToken = $this->argument('accessToken');
-    //   dd($shop,$accessToken);
       $endpoint = "https://{$shop}/admin/api/{$apiVersion}/graphql.json";
-    //   dd($endpoint);
       $query = <<<'GRAPHQL'
       mutation {
         bulkOperationRunQuery(
@@ -30,7 +25,7 @@ class FetchOrders extends Command
                 node {
                   id
                   paymentGatewayNames
-                  phone
+                  email
                   poNumber
                   presentmentCurrencyCode
                   customer {
@@ -38,7 +33,7 @@ class FetchOrders extends Command
                     amountSpent { amount currencyCode }
                     addresses {
                       address1 address2 city company country countryCodeV2
-                      firstName lastName latitude longitude name phone province provinceCode zip
+                      firstName lastName latitude longitude name  province provinceCode zip
                     }
                     displayName
                     numberOfOrders
@@ -72,20 +67,15 @@ class FetchOrders extends Command
                   currencyCode
                   discountCode
                   discountCodes
-                  email
                   displayFinancialStatus
                   displayFulfillmentStatus
                   cancelledAt
-                  shippingAddress {
-                    id address1 address2 city company country countryCodeV2
-                    firstName lastName phone province provinceCode timeZone zip
-                  }
                   shippingLine {
                     id title code
                     currentDiscountedPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
                     discountedPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
                     originalPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
-                    source phone shippingRateHandle
+                    source shippingRateHandle
                   }
                   tags
                   taxLines {
@@ -131,6 +121,7 @@ class FetchOrders extends Command
                   lineItems {
                     edges {
                       node {
+                        name
                         currentQuantity
                         discountedTotalSet(withCodeDiscounts: false) {
                           presentmentMoney {
@@ -201,6 +192,7 @@ class FetchOrders extends Command
           return 1;
       }
       $result = $response->json();
+
       if (isset($result['data']['bulkOperationRunQuery']['userErrors']) && !empty($result['data']['bulkOperationRunQuery']['userErrors'])) {
           $this->error('Bulk operation query errors: ' . json_encode($result['data']['bulkOperationRunQuery']['userErrors']));
           return 1;
@@ -244,7 +236,7 @@ class FetchOrders extends Command
           $url = $statusResult['data']['currentBulkOperation']['url'] ?? null;
           $errorCode = $statusResult['data']['currentBulkOperation']['errorCode'] ?? null;
           $this->info("Current status: {$status}");
-          if ($status === 'COMPLETED' && $url) {
+          if ($status === 'COMPLETED') {
               $this->info("Bulk operation completed. Processing directly from URL: {$url}");
               break;
           }
@@ -256,9 +248,6 @@ class FetchOrders extends Command
               if (isset($statusResult['errors'])) {
                   $this->error('Errors: ' . json_encode($statusResult['errors']));
               }
-            //   if($partialDataUrl){
-            //      $this->info("partialDataUrl:$partialDataUrl");
-            //   }
               return 1;
           }
       }
@@ -266,12 +255,12 @@ class FetchOrders extends Command
           $this->error('No URL for bulk operation result.');
           return 1;
       }
-      
-          $handle = @fopen($url, 'r');
-          if ($handle === false) {
-              $error = error_get_last();
-              throw new Exception('Failed to open file: ' . $error['message']);
-          }
+
+        $handle = @fopen($url, 'r');
+        if ($handle === false) {
+            $error = error_get_last();
+            throw new Exception('Failed to open file: ' . $error['message']);
+        }
         $currentOrderId = null;
         $orderObject = null;
         $orderCount = 0;
@@ -303,57 +292,32 @@ class FetchOrders extends Command
             $this->insertOrderObjectIntoDB($orderObject);
             $orderCount++;
         }
-
-        // dd($order);
         fclose($handle);
-
-        // if($orderObject['name']=='#1002')
-        // {
-
-        //     dd($orderObject);
-        // }
-
         Log::info("Processed $orderCount orders.");
         return 0;
 }
 
 
-// helper function to get numeric id from the id string :
-protected function extractShopifyId($gid)
-{
-    if (!$gid) return null;
 
-    // Updated regex to match ID before optional query string
-    if (preg_match('/\/(\d+)(?:\?|$)/', $gid, $matches)) {
-        return (int) $matches[1];
-    }
-
-    return null;
-}
-
-protected function insertOrderObjectIntoDB($order): void
+   protected function insertOrderObjectIntoDB($shopifyOrder): void
     {
-        // Example: Save order to database or process it
-        Log::info("Processing order: " . json_encode($order));
-        // Example: Save to database (uncomment and customize)
-        $order = Order::create([
-        'customer_id' => $this->extractShopifyId($order['customer']['id'] ?? null),
-        'shipping_address_id' => $this->extractShopifyId($order['shippingAddress']['id'] ?? null),
-        'billing_address_id' => $this->extractShopifyId($order['billingAddress']['id'] ?? null),
-        'phone'                => $order['phone'] ?? '',
-        'email'                => $order['email'] ?? '',
-        'custom_attributes'    => $order['customAttributes'] ?? [],
-        'tags'                 => $order['tags'] ?? [],
-        'note'                 => $order['note'] ?? null,
-        ]);
+      Log::info(json_encode($shopifyOrder, JSON_PRETTY_PRINT));//array to json convert
+      $order = new Order();
+      $order->fulfillment_status = $shopifyOrder['displayFulfillmentStatus']?? null;
+      $order->financial_status = $shopifyOrder['displayFinancialStatus']?? null;
+      $order->subtotal = $shopifyOrder['subtotalPriceSet']['presentmentMoney']['amount']?? null;
+      $order->total = $shopifyOrder['totalPriceSet']['presentmentMoney']['amount']?? null;
+      $order->taxes = $shopifyOrder['totalTaxSet']['presentmentMoney']['amount']?? null;
+      $order->email = $shopifyOrder['email']?? null;
+      $order->is_cancelled = 0;
+      $order->shipping_method = $shopifyOrder['shippingLine']['title']?? null;
+      $order->currency = $shopifyOrder['presentmentCurrencyCode']?? null;
+      $order->weight = $shopifyOrder['totalWeight']?? null;
+      $order->discount_code = $shopifyOrder['discountCode']?? null;
+      $order->payment_method = $shopifyOrder['paymentGatewayNames'][0]?? null;
+      $order->save();
 
-        $this->info("order placed in db !");
-        Log::info("order added:", $order->toArray());
     }
 
 
 }
-
-// $order = Order::where('customer_id', 11607517626735)->first();
-// dd($order);
-
