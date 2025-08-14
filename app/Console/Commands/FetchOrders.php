@@ -11,13 +11,15 @@ class FetchOrders extends Command
     protected $description = 'Fetch all orders from Shopify using GraphQL Admin API bulk operation';
     public function handle()
     {
-    //   $shop = 'arsenal-store-1.myshopify.com';
+
       $apiVersion = '2025-04';
-    // $accessToken = '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';
+
 
       $shop  = $this->argument('shop');
       $accessToken = $this->argument('accessToken');
-    //   dd($shop,$accessToken);
+
+     //   dd($shop,$accessToken, config('shopify-app.api_scopes'));
+
       $endpoint = "https://{$shop}/admin/api/{$apiVersion}/graphql.json";
     //   dd($endpoint);
       $query = <<<'GRAPHQL'
@@ -29,64 +31,13 @@ class FetchOrders extends Command
               edges {
                 node {
                   id
-                  paymentGatewayNames
+                  email
                   phone
+                  paymentGatewayNames
                   poNumber
                   presentmentCurrencyCode
-                  customer {
-                    id
-                    amountSpent { amount currencyCode }
-                    addresses {
-                      address1 address2 city company country countryCodeV2
-                      firstName lastName latitude longitude name phone province provinceCode zip
-                    }
-                    displayName
-                    numberOfOrders
-                    defaultEmailAddress { emailAddress }
-                    defaultPhoneNumber { phoneNumber }
-                    lifetimeDuration
-                    note
-                    state
-                    tags
-                    createdAt
-                    updatedAt
-                    verifiedEmail
-                  }
                   name
                   note
-                  customAttributes { key value }
-                  customerJourneySummary {
-                    lastVisit {
-                      referrerUrl landingPage landingPageHtml
-                      referralCode source sourceDescription sourceType
-                      utmParameters { campaign content medium source term }
-                    }
-                  }
-                  billingAddress {
-                    address1 address2 city company country countryCodeV2
-                    firstName lastName phone province provinceCode timeZone zip
-                  }
-                  clientIp
-                  customerAcceptsMarketing
-                  cancelReason
-                  currencyCode
-                  discountCode
-                  discountCodes
-                  email
-                  displayFinancialStatus
-                  displayFulfillmentStatus
-                  cancelledAt
-                  shippingAddress {
-                    id address1 address2 city company country countryCodeV2
-                    firstName lastName phone province provinceCode timeZone zip
-                  }
-                  shippingLine {
-                    id title code
-                    currentDiscountedPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
-                    discountedPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
-                    originalPriceSet { presentmentMoney { amount currencyCode } shopMoney { amount currencyCode } }
-                    source phone shippingRateHandle
-                  }
                   tags
                   taxLines {
                     channelLiable
@@ -128,51 +79,7 @@ class FetchOrders extends Command
                     trackingInfo { company number url }
                     createdAt deliveredAt updatedAt
                   }
-                  lineItems {
-                    edges {
-                      node {
-                        currentQuantity
-                        discountedTotalSet(withCodeDiscounts: false) {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        discountedUnitPriceAfterAllDiscountsSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        id
-                        originalTotalSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        originalUnitPriceSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        quantity
-                        requiresShipping
-                        sku
-                        taxable
-                        title
-                        totalDiscountSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        variantTitle
-                        vendor
-                      }
-                    }
-                  }
+
                 }
               }
             }
@@ -196,11 +103,14 @@ class FetchOrders extends Command
       ])->withOptions([
           'verify' => false,
       ])->post($endpoint, ['query' => $query]);
+    //   dd($response->json());
       if ($response->failed()) {
           $this->error('Failed to start bulk operation: ' . $response->body());
           return 1;
       }
+
       $result = $response->json();
+    //   dd($result);
       if (isset($result['data']['bulkOperationRunQuery']['userErrors']) && !empty($result['data']['bulkOperationRunQuery']['userErrors'])) {
           $this->error('Bulk operation query errors: ' . json_encode($result['data']['bulkOperationRunQuery']['userErrors']));
           return 1;
@@ -235,12 +145,16 @@ class FetchOrders extends Command
           ])->withOptions([
               'verify' => false,
           ])->post($endpoint, ['query' => $statusQuery]);
+
+        //   dd($statusResponse);
           if ($statusResponse->failed()) {
               $this->error('Failed to check operation status: ' . $statusResponse->body());
               return 1;
           }
           $statusResult = $statusResponse->json();
+        //   dd($statusResult);
           $status = $statusResult['data']['currentBulkOperation']['status'] ?? 'RUNNINGNEW';
+
           $url = $statusResult['data']['currentBulkOperation']['url'] ?? null;
           $errorCode = $statusResult['data']['currentBulkOperation']['errorCode'] ?? null;
           $this->info("Current status: {$status}");
@@ -266,7 +180,7 @@ class FetchOrders extends Command
           $this->error('No URL for bulk operation result.');
           return 1;
       }
-      
+
           $handle = @fopen($url, 'r');
           if ($handle === false) {
               $error = error_get_last();
@@ -334,21 +248,21 @@ protected function extractShopifyId($gid)
 protected function insertOrderObjectIntoDB($order): void
     {
         // Example: Save order to database or process it
-        Log::info("Processing order: " . json_encode($order));
-        // Example: Save to database (uncomment and customize)
-        $order = Order::create([
-        'customer_id' => $this->extractShopifyId($order['customer']['id'] ?? null),
-        'shipping_address_id' => $this->extractShopifyId($order['shippingAddress']['id'] ?? null),
-        'billing_address_id' => $this->extractShopifyId($order['billingAddress']['id'] ?? null),
-        'phone'                => $order['phone'] ?? '',
-        'email'                => $order['email'] ?? '',
-        'custom_attributes'    => $order['customAttributes'] ?? [],
-        'tags'                 => $order['tags'] ?? [],
-        'note'                 => $order['note'] ?? null,
-        ]);
+        // Log::info("Processing order: " . json_encode($order));
 
-        $this->info("order placed in db !");
-        Log::info("order added:", $order->toArray());
+        // $order = Order::create([
+        // 'customer_id' => $this->extractShopifyId($order['customer']['id'] ?? null),
+        // 'shipping_address_id' => $this->extractShopifyId($order['shippingAddress']['id'] ?? null),
+        // 'billing_address_id' => $this->extractShopifyId($order['billingAddress']['id'] ?? null),
+        // 'phone'                => $order['phone'] ?? '',
+        // 'email'                => $order['email'] ?? '',
+        // 'custom_attributes'    => $order['customAttributes'] ?? [],
+        // 'tags'                 => $order['tags'] ?? [],
+        // 'note'                 => $order['note'] ?? null,
+        // ]);
+
+        // $this->info("order placed in db !");
+        // Log::info("order added:", $order->toArray());
     }
 
 

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('customer_id')->nullable()->index();
             $table->unsignedBigInteger('shipping_address_id')->nullable()->index();
+             $table->unsignedBigInteger('billing_address_id')->nullable()->index();
             $table->string('phone')->index();
             $table->string('email')->index();
             $table->json('tags')->nullable();
@@ -31,3 +32,5 @@ return new class extends Migration
         Schema::dropIfExists('orders');
     }
 };
+
+
