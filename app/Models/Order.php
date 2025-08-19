@@ -11,19 +11,24 @@ class Order extends Model
 
     // All fillable fields for mass assignment
     protected $fillable = [
+        'store_id',
+        'customer_id',
+        'name',
         'fulfillment_status',
         'financial_status',
-        'subtotal',
-        'total',
-        'taxes',
+        'subtotal_price',
+        'total_price',
+        'total_taxes',
+        'total_weight',
+        'total_shipping_price',
         'email',
-        'is_cancelled',
-        'shipping_method',
         'currency',
-        'weight',
-        'discount_code',
         'payment_method',
+        'cancle_at',
+        'cancel_reason',
+        'phone_number',
     ];
+
 
     // Cast 'is_cancelled' to boolean and decimals properly
     protected $casts = [

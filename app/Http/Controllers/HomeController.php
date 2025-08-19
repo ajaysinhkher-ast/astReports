@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
-
+use Illuminate\Support\Facades\URL;
 class HomeController extends Controller
 {
     public function index()
@@ -15,18 +15,19 @@ class HomeController extends Controller
 
         $shopDomain  = $shop->name;
         $accessToken = $shop->password;
-        // dd($shopDomain,$accessToken);
+
 
         Artisan::call('shopify:fetch-orders', [
             'shop' => $shopDomain,
             'accessToken' => $accessToken,
         ]);
-
-         $output = Artisan::output();
-         dd($output);
-
+        $orderUrl = URL::tokenRoute('order');
         return Inertia::render('welcome', [
             'greeting' => 'Hello Developer!',
+            'orderUrl' => $orderUrl,
         ]);
+    }
+    public function order(){
+        return Inertia::render('order');
     }
 }

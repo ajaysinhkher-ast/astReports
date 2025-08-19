@@ -14,18 +14,23 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id')->index();
-            $table->string('title');
+            $table->string('product_name');
             $table->integer('quantity')->default(1);
-            $table->decimal('price', 12, 2)->default(0);  // sale price for this item
-            $table->decimal('cost', 12, 2)->default(0);   // vendor cost or base cost for item
+            $table->decimal('price', 12, 2)->default(0);
+            $table->decimal('total_price',12,2)->default(0);
+            $table->decimal('total_discount', 12, 2)->default(0);
+            $table->boolean('taxable')->default(false);
+            $table->decimal('total_tax', 12, 3)->default(0);
+            $table->decimal('tax_rate', 8, 2)->default(0);           
+            $table->decimal('tax_rate_percentage', 8, 2)->default(0);
+            $table->string('tax_source')->nullable();
+            $table->string('sku')->nullable();
             $table->string('vendor')->nullable();
-            $table->string('fulfillment_status')->default('pending');
-            $table->decimal('tax', 12, 2)->default(0);
-            $table->decimal('discount', 12, 2)->default(0);
-            $table->decimal('weight', 8, 3)->default(0);
+            $table->string('variant_title')->nullable();
+            $table->boolean('require_shipping')->default(false);
             $table->timestamps();
-
         });
+
     }
 
     /**

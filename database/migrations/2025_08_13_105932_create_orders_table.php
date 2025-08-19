@@ -13,18 +13,23 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('store_id');
+            $table->unsignedBigInteger('customer_id');
+            $table->string('name');
             $table->string('fulfillment_status')->default('pending');
             $table->string('financial_status')->default('pending');
-            $table->decimal('subtotal', 12, 2)->default(0);
-            $table->decimal('total', 12, 2)->default(0);
-            $table->decimal('taxes', 12, 2)->default(0);
-            $table->string('email')->nullable();
-            $table->boolean('is_cancelled')->default(false);
-            $table->string('shipping_method')->nullable();
+            $table->decimal('subtotal_price', 12, 2)->default(0);
+            $table->decimal('total_price', 12, 2)->default(0);
+            $table->decimal('total_taxes', 12, 2)->default(0);
+            $table->decimal('total_weight', 8, 3)->default(0);
+            $table->decimal('total_shipping_price',12,2)->default(0);
+            $table->decimal('total_discount',12,2)->default(0);
             $table->string('currency', 3)->default('USD');
-            $table->decimal('weight', 8, 3)->default(0);
-            $table->string('discount_code')->nullable();
             $table->string('payment_method')->nullable();
+            $table->dateTime('cancle_at')->nullable();
+            $table->string('cancel_reason')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone_number', 20)->nullable();
             $table->timestamps();
         });
     }

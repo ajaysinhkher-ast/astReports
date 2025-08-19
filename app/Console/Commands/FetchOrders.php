@@ -5,6 +5,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Order;
+use App\Models\User;
+use App\Models\OrderItem;
+use App\Services\ShopifyOrderMapper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 class FetchOrders extends Command
 {
     protected $signature = 'shopify:fetch-orders {shop} {accessToken}';
@@ -122,27 +128,13 @@ class FetchOrders extends Command
                     edges {
                       node {
                         name
-                        currentQuantity
-                        discountedTotalSet(withCodeDiscounts: false) {
-                          presentmentMoney {
+                        originalTotalSet{
+                         presentmentMoney {
                             amount
                             currencyCode
                           }
                         }
-                        discountedUnitPriceAfterAllDiscountsSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        id
-                        originalTotalSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        originalUnitPriceSet {
+                        originalUnitPriceSet{
                           presentmentMoney {
                             amount
                             currencyCode
@@ -152,6 +144,18 @@ class FetchOrders extends Command
                         requiresShipping
                         sku
                         taxable
+                        taxLines{
+                          priceSet{
+                             presentmentMoney{
+                              amount
+                               currencyCode
+                             }
+                          }
+                          rate
+                          ratePercentage
+                          source
+                          title
+                        }
                         title
                         totalDiscountSet {
                           presentmentMoney {
@@ -301,21 +305,15 @@ class FetchOrders extends Command
 
    protected function insertOrderObjectIntoDB($shopifyOrder): void
     {
-      Log::info(json_encode($shopifyOrder, JSON_PRETTY_PRINT));//array to json convert
-      $order = new Order();
-      $order->fulfillment_status = $shopifyOrder['displayFulfillmentStatus']?? null;
-      $order->financial_status = $shopifyOrder['displayFinancialStatus']?? null;
-      $order->subtotal = $shopifyOrder['subtotalPriceSet']['presentmentMoney']['amount']?? null;
-      $order->total = $shopifyOrder['totalPriceSet']['presentmentMoney']['amount']?? null;
-      $order->taxes = $shopifyOrder['totalTaxSet']['presentmentMoney']['amount']?? null;
-      $order->email = $shopifyOrder['email']?? null;
-      $order->is_cancelled = 0;
-      $order->shipping_method = $shopifyOrder['shippingLine']['title']?? null;
-      $order->currency = $shopifyOrder['presentmentCurrencyCode']?? null;
-      $order->weight = $shopifyOrder['totalWeight']?? null;
-      $order->discount_code = $shopifyOrder['discountCode']?? null;
-      $order->payment_method = $shopifyOrder['paymentGatewayNames'][0]?? null;
-      $order->save();
+
+      $store_id=Auth::id();
+      DB::transaction(function () use ($shopifyOrder,$store_id) {
+        $orderData = ShopifyOrderMapper::mapOrder($shopifyOrder,$store_id);
+        $order=Order::create($orderData);
+        $orderItems = ShopifyOrderMapper::mapOrderItems($shopifyOrder['line_items'] ?? [], $order->id);
+        OrderItem::insert($orderItems);
+      });
+
 
     }
 

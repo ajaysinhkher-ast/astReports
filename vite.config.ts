@@ -24,7 +24,7 @@ export default defineConfig({
     },
     server: {
       cors: {
-        origin: ['https://19642cc6aefe.ngrok-free.app'],
+        origin: ['https://51b91b7a1d39.ngrok-free.app'],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['*'],
         credentials: true,
