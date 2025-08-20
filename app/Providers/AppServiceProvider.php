@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Support\Facades\Event;
+use App\Listeners\HandleFetchShopifyOrders;
+use App\Events\FetchShopifyOrdersEvent;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -11,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Event::listen(FetchShopifyOrdersEvent::class,HandleFetchShopifyOrders::class);
     }
 
     /**

@@ -263,7 +263,7 @@ class FetchOrders extends Command
         $handle = @fopen($url, 'r');
         if ($handle === false) {
             $error = error_get_last();
-            throw new Exception('Failed to open file: ' . $error['message']);
+            throw new \Exception('Failed to open file: ' . $error['message']);
         }
         $currentOrderId = null;
         $orderObject = null;
