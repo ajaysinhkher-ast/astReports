@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class ShopifyService {
 
-   public function fetchOrder($shop,$accessToken){
+   public function fetchOrder($shop,$accessToken,$storeId){
     $apiVersion = '2025-04';
     //prepare the endpoint  (buildEndPoint method)
     $endPoint=$this->buildEndPoint($shop,$apiVersion);
@@ -26,7 +26,7 @@ class ShopifyService {
             Log::error('Polling bulk operation failed or returned no URL.');
         } else {
              //start readtheurl (realFile method)
-            $status=$this->readUrl($url);
+            $status=$this->readUrl($url,$storeId);
              if($status==false){
                 Log::error('file url not open');
              }else{
@@ -38,7 +38,7 @@ class ShopifyService {
     }
 
 
-      //insert object into db
+   
    }
 
    public function buildEndPoint($shop,$apiVersion){
@@ -285,7 +285,7 @@ class ShopifyService {
         }
         return $url;
    }
-   public function readUrl($url){
+   public function readUrl($url,$storeId){
         $handle = @fopen($url, 'r');
         if ($handle === false) {
             return false;
@@ -303,7 +303,7 @@ class ShopifyService {
             $parentId = $obj['__parentId'] ?? null;
             if (!$parentId) {
                 if ($currentOrderId !== null && $orderObject !== null) {
-                    $this->insertOrderObjectIntoDB($orderObject);
+                    $this->insertOrderObjectIntoDB($orderObject,$storeId);
                     $orderCount++;
                 }
                 // Start a new order
@@ -318,15 +318,17 @@ class ShopifyService {
             }
         }
         if ($orderObject !== null) {
-            $this->insertOrderObjectIntoDB($orderObject);
+            $this->insertOrderObjectIntoDB($orderObject,$storeId);
             $orderCount++;
         }
         fclose($handle);
 
         return  $orderCount;
    }
-   protected function insertOrderObjectIntoDB($shopifyOrder): void{
-        $store_id = Auth::id();
+   protected function insertOrderObjectIntoDB($shopifyOrder,$store_id): void
+   {
+
+        Log::info($store_id);
         DB::transaction(function () use ($shopifyOrder, $store_id) {
             $orderData = ShopifyOrderMapper::mapOrder($shopifyOrder, $store_id);
             $order = Order::create($orderData);
@@ -334,6 +336,9 @@ class ShopifyService {
             OrderItem::insert($orderItems);
         });
     }
+
+
+
 
 
 }
