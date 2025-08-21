@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
+      Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id')->index();
             $table->string('product_name');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('total_discount', 12, 2)->default(0);
             $table->boolean('taxable')->default(false);
             $table->decimal('total_tax', 12, 3)->default(0);
-            $table->decimal('tax_rate', 8, 2)->default(0);           
+            $table->decimal('tax_rate', 8, 2)->default(0);
             $table->decimal('tax_rate_percentage', 8, 2)->default(0);
             $table->string('tax_source')->nullable();
             $table->string('sku')->nullable();
