@@ -23,6 +23,7 @@ class HomeController extends Controller
     public function order(Request $request)
     {
        $orders = Order::all();
+       
        return Inertia::render('orders',['orders'=>$orders]);
     }
 }
