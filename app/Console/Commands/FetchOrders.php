@@ -4,6 +4,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 use App\Models\Order;
 use App\Models\User;
 use App\Models\OrderItem;
@@ -20,6 +22,18 @@ class FetchOrders extends Command
       $apiVersion = '2025-04';
       $shop  = $this->argument('shop');
       $accessToken = $this->argument('accessToken');
+    //   $storeId = $this->argument('storeId');
+        $storeId = DB::connection('singlestore')
+        ->table('users')
+        ->where('name', $shop)
+        ->value('id');
+
+        // dd($storeId);
+        if (!$storeId) {
+        $this->error("No store found for domain: {$shopDomain}");
+        return 1;
+        }
+
       $endpoint = "https://{$shop}/admin/api/{$apiVersion}/graphql.json";
       $query = <<<'GRAPHQL'
       mutation {
@@ -283,7 +297,7 @@ class FetchOrders extends Command
             $parentId = $obj['__parentId'] ?? null;
             if (!$parentId) {
                 if ($currentOrderId !== null && $orderObject !== null) {
-                    $this->insertOrderObjectIntoDB($orderObject);
+                    $this->insertOrderObjectIntoDB($orderObject,$storeId);
                     $orderCount++;
                 }
                 // Start a new order
@@ -298,7 +312,7 @@ class FetchOrders extends Command
             }
         }
         if ($orderObject !== null) {
-            $this->insertOrderObjectIntoDB($orderObject);
+            $this->insertOrderObjectIntoDB($orderObject,$storeId);
             $orderCount++;
         }
         fclose($handle);
@@ -308,24 +322,29 @@ class FetchOrders extends Command
 
 
 
-   protected function insertOrderObjectIntoDB($shopifyOrder): void
+   protected function insertOrderObjectIntoDB($shopifyOrder,$storeId): void
     {
       Log::info(json_encode($shopifyOrder, JSON_PRETTY_PRINT));//array to json convert
+
       $order = new Order();
+      $order->user_id = $storeId ?? null;
+      $order->email = $shopifyOrder['email']?? null;
       $order->fulfillment_status = $shopifyOrder['displayFulfillmentStatus']?? null;
       $order->financial_status = $shopifyOrder['displayFinancialStatus']?? null;
-      $order->subtotal = $shopifyOrder['subtotalPriceSet']['presentmentMoney']['amount']?? null;
-      $order->total = $shopifyOrder['totalPriceSet']['presentmentMoney']['amount']?? null;
-      $order->taxes = $shopifyOrder['totalTaxSet']['presentmentMoney']['amount']?? null;
-      $order->email = $shopifyOrder['email']?? null;
-      $order->is_cancelled = 0;
-      $order->shipping_method = $shopifyOrder['shippingLine']['title']?? null;
+      $order->subtotal_price = $shopifyOrder['subtotalPriceSet']['presentmentMoney']['amount']?? null;
+      $order->total_price = $shopifyOrder['totalPriceSet']['presentmentMoney']['amount']?? null;
+      $order->total_taxes = $shopifyOrder['totalTaxSet']['presentmentMoney']['amount']?? null;
+      $order->total_weight = $shopifyOrder['totalWeight']?? null;
+      $order->total_shipping_price = $shopifyOrder['totalShippingPriceSet']['presentmentMoney']['amount']?? null;
+      $order->total_discount = $shopifyOrder['line_items']['totalDiscountSet']['presentmentMoney']['amount']??0;
+      $order->cancelled_at = $shopifyOrder['cancelledAt']?? null;
+      $order->cancel_reason = $shopifyOrder['cancelReason']?? null;
       $order->currency = $shopifyOrder['presentmentCurrencyCode']?? null;
-      $order->weight = $shopifyOrder['totalWeight']?? null;
-      $order->discount_code = $shopifyOrder['discountCode']?? null;
       $order->payment_method = $shopifyOrder['paymentGatewayNames'][0]?? null;
-      $order->save();
 
+
+      $order->save();
+    //   dd($order);
     }
 
 

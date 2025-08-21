@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
+use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
+use App\Models\Order;
 
 class HomeController extends Controller
 {
@@ -10,44 +12,55 @@ class HomeController extends Controller
     {
         // dd("bmdb");
         $shop = Auth::user();
+        // $store_id = Auth::id();
+        // dd($store_id);
+
         $shopDomain  = $shop->name;
         $accessToken = $shop->password;
+
         // dd($shopDomain);
         // $accessToken = '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';
         // dd($shopDomain,$accessToken);
 
-        Artisan::call('shopify:fetch-orders', [
-            'shop' => $shopDomain,
-            'accessToken' => $accessToken,
-        ]);
+        // Artisan::call('shopify:fetch-orders', [
+        //     'shop' => $shopDomain,
+        //     'accessToken' => $accessToken,
+        //     // 'storeId'=> $store_id
+        // ]);
 
-         $output = Artisan::output();
-         dd($output);
+        try{
+
+            // AppInstalledEvent::dispatch($shopDomain, $accessToken);
+
+        }catch(\Exception $e){
+            // Handle the exception
+            // Log::error('Error dispatching AppInstalledEvent: ' . $e->getMessage());
+            return Inertia::render('Error', ['message' => 'Failed to dispatch event']);
+        }
+
+        // $output = Artisan::output();
+        // dd($output);
 
         return Inertia::render('welcome');
     }
 
-    // public function index(){
-    //     $shop = Auth::user();
-    //     $storeDomain  = $shop->name;
-    //     $accessToken = $shop->password;
+    public function order(Request $request)
+    {
+        // dd("data");
+        $shop = Auth::user();
+        // dd($shop);
 
-    //     $response = Http::withHeaders([
-    //         'X-Shopify-Access-Token' => $accessToken,
-    //     ])->get("https://{$storeDomain}/admin/api/2025-01/orders.json", [
-    //         'status' => 'any',
-    //         'limit' => 10,
-    //     ]);
+        $shopDomain  = $shop->name;
+        $accessToken = $shop->password;
+        // dd($shopDomain, $accessToken);
 
-    //     if ($response->successful()) {
-    //         $orders = $response->json()['orders'];
-    //         return response()->json($orders);
-    //     } else {
-    //         return response()->json([
-    //             'error' => $response->body(),
-    //         ], $response->status());
-    //     }
+        // fetch oders from the database:
+        $orders = Order::all();
 
-    //     return Inertia::render('welcome',['orders' => $orders]);
-    // }
+        
+        return Inertia::render('orders',['orders'=>$orders]);
+        // dd($orders);
+    }
 }
+
+
