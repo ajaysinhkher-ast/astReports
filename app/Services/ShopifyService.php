@@ -32,7 +32,7 @@ class ShopifyService {
                 Log::error('file url not open');
              }else{
                  Log::info("this is count of order $status");
-                 
+
              }
         }
 
@@ -305,6 +305,7 @@ class ShopifyService {
             $parentId = $obj['__parentId'] ?? null;
             if (!$parentId) {
                 if ($currentOrderId !== null && $orderObject !== null) {
+                    Log::info('Inserting store id before' . $storeId);
                     $this->insertOrderObjectIntoDB($orderObject,$storeId);
                     $orderCount++;
                 }
@@ -330,9 +331,10 @@ class ShopifyService {
    protected function insertOrderObjectIntoDB($shopifyOrder,$store_id): void
    {
 
-        Log::info($store_id);
+        Log::info('inside insertOrder ' . $store_id);
         DB::transaction(function () use ($shopifyOrder, $store_id) {
             $orderData = ShopifyOrderMapper::mapOrder($shopifyOrder, $store_id);
+            Log::info('Mapped order data: ' . json_encode($orderData));
             $order = Order::create($orderData);
             $orderItems = ShopifyOrderMapper::mapOrderItems($shopifyOrder['line_items'] ?? [], $order->id);
             OrderItem::insert($orderItems);
