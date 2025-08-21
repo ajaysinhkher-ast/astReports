@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Events\AppInstalledEvent;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalled;
-use App\Listeners\HandleKyonAppInstalled;
+use App\Listeners\ProcessAppInstalled;
 use Illuminate\Support\Facades\Log;
 
 class EventServiceProvider extends ServiceProvider
@@ -29,7 +29,7 @@ class EventServiceProvider extends ServiceProvider
     // protected $listen = [
     //     // Kyon's AppInstalled event
     //         AppInstalled::class => [
-    //         HandleKyonAppInstalled::class,
+    //         ProcessAppInstalled::class,
     //         Log::info('eventlistener registered for shop: ')
     //     ],
     // ];

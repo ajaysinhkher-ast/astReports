@@ -1,17 +1,13 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
-
 class Order extends Model
 {
     // Table name (optional if following Laravel convention)
     protected $table = 'orders';
-
     // All fillable fields for mass assignment
     protected $fillable = [
-        'store_id',
+        'user_id',
         'customer_id',
         'name',
         'fulfillment_status',
@@ -28,8 +24,6 @@ class Order extends Model
         'cancel_reason',
         'phone_number',
     ];
-
-
     // Cast 'is_cancelled' to boolean and decimals properly
     protected $casts = [
         // 'is_cancelled' => 'boolean',
@@ -38,10 +32,9 @@ class Order extends Model
         // 'taxes' => 'decimal:2',
         // 'weight' => 'decimal:3',
     ];
-
     // (Optional) Define relationship with order_items
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class, 'order_id', 'id');
-    }
+    // public function items()
+    // {
+    //     return $this->hasMany(OrderItem::class, 'order_id', 'id');
+    // }
 }
