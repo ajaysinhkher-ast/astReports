@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 class ShopifyService {
 
    public function fetchOrder($shop,$accessToken,$storeId){
+
     $apiVersion = '2025-04';
     //prepare the endpoint  (buildEndPoint method)
     $endPoint=$this->buildEndPoint($shop,$apiVersion);
@@ -31,6 +32,7 @@ class ShopifyService {
                 Log::error('file url not open');
              }else{
                  Log::info("this is count of order $status");
+                 
              }
         }
 
@@ -337,7 +339,7 @@ class ShopifyService {
         });
     }
 
-    
+
 
 
 
