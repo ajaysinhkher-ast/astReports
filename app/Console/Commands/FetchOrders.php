@@ -5,6 +5,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Order;
+use App\Models\User;
+use App\Models\OrderItem;
+use App\Services\ShopifyOrderMapper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 class FetchOrders extends Command
 {
     protected $signature = 'shopify:fetch-orders {shop} {accessToken}';
@@ -122,27 +128,13 @@ class FetchOrders extends Command
                     edges {
                       node {
                         name
-                        currentQuantity
-                        discountedTotalSet(withCodeDiscounts: false) {
-                          presentmentMoney {
+                        originalTotalSet{
+                         presentmentMoney {
                             amount
                             currencyCode
                           }
                         }
-                        discountedUnitPriceAfterAllDiscountsSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        id
-                        originalTotalSet {
-                          presentmentMoney {
-                            amount
-                            currencyCode
-                          }
-                        }
-                        originalUnitPriceSet {
+                        originalUnitPriceSet{
                           presentmentMoney {
                             amount
                             currencyCode
@@ -152,6 +144,18 @@ class FetchOrders extends Command
                         requiresShipping
                         sku
                         taxable
+                        taxLines{
+                          priceSet{
+                             presentmentMoney{
+                              amount
+                               currencyCode
+                             }
+                          }
+                          rate
+                          ratePercentage
+                          source
+                          title
+                        }
                         title
                         totalDiscountSet {
                           presentmentMoney {
@@ -264,7 +268,7 @@ class FetchOrders extends Command
         $handle = @fopen($url, 'r');
         if ($handle === false) {
             $error = error_get_last();
-            throw new Exception('Failed to open file: ' . $error['message']);
+            throw new \Exception('Failed to open file: ' . $error['message']);
         }
         $currentOrderId = null;
         $orderObject = null;
@@ -306,7 +310,6 @@ class FetchOrders extends Command
 
    protected function insertOrderObjectIntoDB($shopifyOrder): void
     {
-
       Log::info(json_encode($shopifyOrder, JSON_PRETTY_PRINT));//array to json convert
       $order = new Order();
       $order->fulfillment_status = $shopifyOrder['displayFulfillmentStatus']?? null;
