@@ -30,8 +30,6 @@ router.on("before", (event) => {
         },
       });
     })();
-
-    // Cancel the original visit
     return false;
   });
 

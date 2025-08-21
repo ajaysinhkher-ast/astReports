@@ -3,8 +3,8 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Order() {
 
-    const { props } = usePage();
-    const orderUrl = props.orderUrl as string; // Type assertion to string
+  const { props } = usePage();
+  const orderUrl = props.orderUrl as string;
 
   return (
     <>
