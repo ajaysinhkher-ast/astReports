@@ -5,12 +5,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-
 use App\Models\Order;
 use App\Models\User;
 use App\Models\OrderItem;
 use App\Services\ShopifyOrderMapper;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class FetchOrders extends Command
