@@ -21,8 +21,8 @@ return new class extends Migration
             $table->decimal('total_discount', 12, 2)->default(0);
             $table->boolean('taxable')->default(false);
             $table->decimal('total_tax', 12, 3)->default(0);
-            $table->decimal('tax_rate', 8, 2)->default(0);              // changed from float to decimal for precision
-            $table->decimal('tax_rate_percentage', 8, 2)->default(0);  // changed from float to decimal
+            $table->decimal('tax_rate', 8, 2)->default(0);
+            $table->decimal('tax_rate_percentage', 8, 2)->default(0);
             $table->string('tax_source')->nullable();
             $table->string('sku')->nullable();
             $table->string('vendor')->nullable();

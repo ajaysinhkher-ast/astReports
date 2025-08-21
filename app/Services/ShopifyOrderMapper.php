@@ -7,7 +7,7 @@ class ShopifyOrderMapper
     public static function mapOrder(array $shopifyOrder,int $store_id): array
     {
         return [
-            'store_id'=>$store_id,
+            'user_id'=>$store_id,
             'customer_id'=>0,
             'name'=>$shopifyOrder['name'] ?? 'order name is not available',
             'fulfillment_status' => $shopifyOrder['displayFulfillmentStatus'] ?? null,
@@ -34,7 +34,7 @@ class ShopifyOrderMapper
         foreach ($shopifyOrderItems as $orderItem){
           $taxLine = $orderItem['taxLines'][0] ?? [];
           $item=[
-             'order_id'=>$order_id ?? null,
+              'order_id'=>$order_id ?? null,
               'product_name'=>$orderItem['name']??null,
               'quantity'=>$orderItem['quantity']??0,
               'price'=>$orderItem['originalUnitPriceSet']['presentmentMoney']['amount']??0,
@@ -45,8 +45,8 @@ class ShopifyOrderMapper
               'tax_rate'=>$orderItem['taxLines'][0]['rate']??0,
               'tax_rate_percentage'=>$orderItem['taxLines'][0]['ratePercentage']??0,
               'tax_source'=>$orderItem['taxLines'][0]['source']??null,
-               'sku'=>$orderItem['sku']??null,
-               'vendor'=>$orderItem['vendor']??null,
+              'sku'=>$orderItem['sku']??null,
+              'vendor'=>$orderItem['vendor']??null,
                'variant_title'=>$orderItem['variantTitle']??null,
                'require_shipping'=>$orderItem['requiresShipping']??null,
 

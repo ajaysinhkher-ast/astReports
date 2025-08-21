@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 use App\Models\Order;
+use Illuminate\Support\Facades\Auth;   
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -57,7 +59,7 @@ class HomeController extends Controller
         // fetch oders from the database:
         $orders = Order::all();
 
-        
+
         return Inertia::render('orders',['orders'=>$orders]);
         // dd($orders);
     }
