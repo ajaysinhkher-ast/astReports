@@ -7,25 +7,25 @@ use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 class HomeController extends Controller
 {
     public function index()
     {
-        try{
-
-        }catch(\Exception $e){
-            return Inertia::render('Error', ['message' => 'Failed to dispatch event']);
-        }
         return Inertia::render('welcome');
     }
 
-    public function order(Request $request)
+    public function order()
     {
+    Log::info('inside oreder');
        $orders = Order::all();
-       
+
        return Inertia::render('orders',['orders'=>$orders]);
     }
+
+    public function test(){
+        $orders = Order::all();
+
+       return Inertia::render('dashboard');
+    }
 }
-
-

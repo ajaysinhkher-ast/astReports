@@ -10,14 +10,7 @@ Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 
 
-Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->middleware(['verify.shopify'])->name('dashboard');
-
-
-
 Route::get('order/report',[HomeController::class, 'order'])->middleware('verify.shopify')->name('order');
+
+Route::get('test',[HomeController::class,'test'])->middleware('verify.shopify')->name("test");
 // try to customize midleware by using both the verify.shopify and auth middleware.
-
-
-
