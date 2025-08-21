@@ -1,54 +1,3 @@
-// import React from "react";
-// import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-// import { AgGridReact } from "ag-grid-react";
-
-// // Register AG Grid modules
-// ModuleRegistry.registerModules([AllCommunityModule]);
-
-// const OrdersGrid = ({ orders }) => {
-//     // Column Definitions: Defines the columns to be displayed.
-//     const colDefs = [
-//         { field: "id" },
-//         { field: "user_id" },
-//         { field: "email" },
-//         { field: "customer_id" },
-//         { field: "fulfillment_status" },
-//         { field: "financial_status" },
-//         { field: "subtotal_price" },
-//         { field: "total_price" },
-//         { field: "total_taxes" },
-//         { field: "total_weight" },
-//         { field: "total_shipping_price" },
-//         { field: "total_discount" },
-//         { field: "cancelled_at" },
-//         { field: "cancel_reason" },
-//         { field: "currency" },
-//         { field: "payment_method" },
-//         { field: "created_at" },
-//         { field: "updated_at" },
-//         { field: "deleted_at" },
-//     ];
-
-//     console.log("Orders Data:");
-//     return (
-//         <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
-//             <AgGridReact
-//                 rowData={orders}
-//                 columnDefs={colDefs}
-//                 defaultColDef={{
-//                 sortable: true,
-//                 filter: true,
-//                 resizable: true,
-//                 }}
-//             />
-//         </div>
-//     );
-// };
-
-// export default OrdersGrid;
-
-
-
 import React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
@@ -61,6 +10,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 interface Order {
   id: number;
   user_id: number;
+  name:string;
   email: string;
   customer_id: number;
   fulfillment_status: string;
@@ -84,32 +34,37 @@ interface Props extends PageProps {
   orders: Order[];
 }
 
-const OrdersGrid: React.FC<Props> = ({ orders }) => {
+const OrdersItemsGrid: React.FC<Props> = ({ orders }) => {
 
-  const colDefs: { field: keyof Order }[] = [
+      console.log("Incoming orders:", orders);
+
+  const colDefs: { field: keyof Order; headerName?: string }[] = [
     { field: "id" },
-    { field: "user_id" },
-    { field: "email" },
-    { field: "customer_id" },
-    { field: "fulfillment_status" },
-    { field: "financial_status" },
-    { field: "subtotal_price" },
-    { field: "total_price" },
-    { field: "total_taxes" },
-    { field: "total_weight" },
-    { field: "total_shipping_price" },
-    { field: "total_discount" },
-    { field: "cancelled_at" },
-    { field: "cancel_reason" },
-    { field: "currency" },
-    { field: "payment_method" },
-    { field: "created_at" },
-    { field: "updated_at" },
-    { field: "deleted_at" },
+    { field: "user_id", headerName: "User ID" },
+    { field: "name", headerName: "Name" },
+    { field: "email" , headerName: "Email" },
+    { field: "customer_id", headerName: "Customer ID" },
+    { field: "fulfillment_status" , headerName: "Fulfillment Status" },
+    { field: "financial_status" , headerName: "Financial Status" },
+    { field: "subtotal_price", headerName: "Subtotal Price" },
+    { field: "total_price", headerName: "Total Price" },
+    { field: "total_taxes", headerName: "Total Taxes" },
+    { field: "total_weight", headerName: "Total Weight" },
+    { field: "total_shipping_price", headerName: "Total Shipping Price" },
+    { field: "total_discount", headerName: "Total Discount" },
+    { field: "cancelled_at", headerName: "Cancelled At" },
+    { field: "cancel_reason", headerName: "Cancel Reason" },
+    { field: "currency", headerName: "Currency" },
+    { field: "payment_method", headerName: "Payment Method" },
+    { field: "created_at", headerName: "Created At" },
+    { field: "updated_at", headerName: "Updated At" },
+    { field: "deleted_at", headerName: "Deleted At"},
   ];
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
+    <>
+    <div style={{padding:'20px'}}>Order details</div>
+    <div className="ag-theme-alpine" style={{ height: 600, width: '100%', padding: '20px'}}>
       <AgGridReact<Order>
         rowData={orders}
         columnDefs={colDefs}
@@ -117,18 +72,13 @@ const OrdersGrid: React.FC<Props> = ({ orders }) => {
           sortable: true,
           filter: true,
           resizable: true,
-
-
+          width:100,
+          cellStyle: { borderRight: "1px solid #ccc", borderBottom: "1px solid #ccc" }
         }}
       />
     </div>
+    </>
   );
 };
 
-export default OrdersGrid;
-
-
-
-
-
-
+export default OrdersItemsGrid;

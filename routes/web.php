@@ -5,19 +5,15 @@ use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 
 
-Route::get('/', [HomeController::class, 'index'])
-    ->middleware('verify.shopify')
-    ->name('home');
+Route::middleware(['verify.shopify'])->group(function () {
 
-
-Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->middleware(['verify.shopify'])->name('dashboard');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('orders', [HomeController::class, 'order'])->name('order');
+    Route::get('orderItems', [HomeController::class, 'orderItems'])->name('orderItems');
+});
 
 
 
-Route::get('order/report',[HomeController::class, 'order'])->middleware('verify.shopify')->name('order');
-// try to customize midleware by using both the verify.shopify and auth middleware.
 
 
 

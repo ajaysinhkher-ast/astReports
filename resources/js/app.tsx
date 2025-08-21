@@ -18,6 +18,7 @@ console.log("App Bridge instance:", appBridge);
 
 router.on("before", (event) => {
     const visit = event.detail.visit;
+    console.log("Visit details:", visit);
     // Prevent infinite loops
     if (visit.headers?.["X-Token-Injected"]) return;
     (async () => {

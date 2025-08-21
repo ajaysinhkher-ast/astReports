@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -22,9 +23,18 @@ class HomeController extends Controller
 
     public function order(Request $request)
     {
+        // dd($request->all());
        $orders = Order::all();
-       
-       return Inertia::render('orders',['orders'=>$orders]);
+
+       return Inertia::render('Orders',['orders'=>$orders]);
+    }
+
+    public function orderItems(Request $request)
+    {
+        $orderItems = OrderItem::all();
+        // dd($orderItems);
+
+        return Inertia::render('OrderItems', ['orderItems' => $orderItems]);
     }
 }
 
