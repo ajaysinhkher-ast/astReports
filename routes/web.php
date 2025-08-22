@@ -5,7 +5,9 @@ use App\Http\Controllers\OrdersController;
 
 Route::middleware('verify.shopify')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('reports', [HomeController::class, 'reports'])->name('reports');
 
     Route::get('orders', [OrdersController::class, 'orders'])->name('orders');
-    Route::get('order/items',[OrdersController::class,'orderItems'])->name('order.items');
+    Route::get('orders/items',[OrdersController::class,'orderItems'])->name('order.items');
+    
 });

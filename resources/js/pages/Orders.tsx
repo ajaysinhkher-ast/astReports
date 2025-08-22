@@ -32,9 +32,10 @@ interface Order {
 
 interface Props extends PageProps {
   orders: Order[];
+  title?: string;
 }
 
-const Orders: React.FC<Props> = ({ orders }) => {
+const Orders: React.FC<Props> = ({ orders ,title = "Order details"}) => {
 
       console.log("Incoming orders:", orders);
       console.log(Array.isArray(orders), orders);
@@ -64,7 +65,7 @@ const Orders: React.FC<Props> = ({ orders }) => {
 
   return (
     <>
-    <div style={{padding:'20px'}}>Order details</div>
+   <div style={{ padding: "20px" }}>{title}</div>
     <div className="ag-theme-alpine" style={{ height: 600, width: '100%', padding: '20px'}}>
       <AgGridReact<Order>
         rowData={orders}

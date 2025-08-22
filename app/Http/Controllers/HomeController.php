@@ -9,7 +9,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return Inertia::render('welcome');
+        return Inertia::render('Landing');
     }
+
+    public function reports()
+    {
+        return Inertia::render('ReportView');
+    }
+
 
 }

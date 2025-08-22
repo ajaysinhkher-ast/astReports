@@ -15,9 +15,9 @@ class OrdersController extends Controller
         $query = Order::query();
         $query = QueryFilter::apply($query, $request);
         $orders = $query->get();
-
         return Inertia::render('Orders', [
             'orders' => $orders,
+            'title'=>$request->title,
         ]);
     }
 
