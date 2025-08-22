@@ -1,81 +1,83 @@
-import React from "react";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
-import { Head, Link, usePage } from '@inertiajs/react';
-import { PageProps } from "@inertiajs/inertia";
+import { PageProps } from '@inertiajs/inertia';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AgGridReact } from 'ag-grid-react';
+import React from 'react';
+
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-interface orderItems {
-  order_id: number;
-  product_name: string;
-  quantity: number;
-  price: string;
-  total_price: string;
-  total_discount: string;
-  taxable: boolean;
-  total_tax: string;
-  tax_rate: string;
-  tax_rate_percentage: string;
-  tax_source: string;
-  sku: string;
-  vendor: string;
-  variant_title: string;
-  require_shipping: boolean;
+// Define your Order interface
+interface OrderItems {
+    id: number;
+    order_id: number;
+    product_name: string;
+    price: number;
+    total_price: number;
+    total_discount: number;
+    taxable: boolean;
+    total_tax: number;
+    tax_rate: number;
+    tax_rate_percentage: number;
+    tax_source: string | null;
+    sku: string | null;
+    vendor: string | null;
+    variant_title: string | null;
+    require_shipping: boolean;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
 }
 
 interface Props extends PageProps {
-  orderItems: orderItems[];
+    orderItems: OrderItems[];
 }
 
-const OrderItemsGrid: React.FC<Props> = ({ orderItems}) => {
-  const colDefs: { field: keyof orderItems}[] = [
-    { field: "order_id"},
-    { field: "product_name"},
-    { field: "quantity"},
-    { field: "price" },
-    { field: "total_price"},
-    { field: "total_discount"},
-    { field: "taxable"},
-    { field: "total_tax" },
-    { field: "tax_rate"},
-    { field: "tax_rate_percentage"},
-    { field: "tax_source"},
-    { field: "sku"},
-    { field: "vendor"},
-    { field: "variant_title"},
-    { field: "require_shipping"},
-  ];
+const OrdersGrid: React.FC<Props> = ({ orderItems }) => {
+    console.log('Incoming orders:', orderItems);
 
-  return (
-    <>
-      <div className="m-5">
-        <Link
-          href="/"
-          className="inline-block mb-4 px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition"
-        >
-          &larr; Back to Home
-        </Link>
-      </div>
-      <div className="ml-5 text-xl font-semibold mb-4">Order Items</div>
-      <div
-        className="ag-theme-alpine mx-5 my-5"
-        style={{ height: 600, width: "calc(100% - 40px)" }}
-      >
-        <AgGridReact<orderItems>
-          rowData={orderItems}
-          columnDefs={colDefs}
-          defaultColDef={{
-            sortable: true,
-            filter: true,
-            resizable: true,
-            width: 120,
-            cellStyle: { borderRight: "1px solid #ccc", borderBottom: "1px solid #ccc" },
-          }}
-        />
-      </div>
-    </>
-  );
+    const colDefs: { field: keyof OrderItems; headerName?: string }[] = [
+        { field: 'id',headerName: 'ID' },
+        { field: 'order_id', headerName: 'Order ID' },
+        { field: 'product_name', headerName: 'Product Name' },
+        { field: 'price', headerName: 'Price' },
+        { field: 'total_price', headerName: 'Total Price' },
+        { field: 'total_discount', headerName: 'Total Discount' },
+        { field: 'taxable', headerName: 'Taxable' },
+        { field: 'total_tax', headerName: 'Total Tax' },
+        { field: 'tax_rate', headerName: 'Tax Rate' },
+        { field: 'tax_rate_percentage', headerName: 'Tax Rate Percentage' },
+        { field: 'tax_source', headerName: 'Tax Source' },
+        { field: 'sku', headerName: 'SKU' },
+        { field: 'vendor' , headerName: 'Vendor' },
+        { field: 'variant_title', headerName: 'Variant Title' },
+        { field: 'require_shipping', headerName: 'Require Shipping' },
+        { field: 'created_at', headerName: 'Created At' },
+        { field: 'updated_at', headerName: 'Updated At' },
+        { field: 'deleted_at', headerName: 'Deleted At' },
+
+    ];
+
+    return (
+        <>
+            <div style={{padding:'20px'}}>OrderItem details</div>
+            <div
+                className="ag-theme-alpine"
+                style={{ height: 600, width: '100%', padding: '20px'}}
+            >
+                <AgGridReact<OrderItems>
+                    rowData={orderItems}
+                    columnDefs={colDefs}
+                    defaultColDef={{
+                        sortable: true,
+                        filter: true,
+                        resizable: true,
+                        width: 100,
+                        cellStyle: { borderRight: '1px solid #ccc', borderBottom: '1px solid #ccc' },
+                    }}
+                />
+            </div>
+        </>
+    );
 };
 
-export default OrderItemsGrid;
+export default OrdersGrid;
