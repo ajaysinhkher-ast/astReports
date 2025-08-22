@@ -7,37 +7,47 @@ export default function Welcome() {
                 <input
                     type="text"
                     placeholder="Search..."
-                    className="w-full rounded-md border border-gray-300 px-4 py-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
                 />
 
-                <div className="w-full">
-                    <Link
-                        href="orders"
-                        className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
-                    >
-                        Order Details
-                    </Link>
-                </div>
 
                 <Link
-                    href="orders/items"
+                    href="orders"
+                    className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
+                >
+                    Order Details
+                </Link>
+
+                <Link
+                  href="orders?financial_status=PAID"
+                  className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
+                >
+                    Paid Orders
+                </Link>
+
+                <Link
+                     href="order"
+                     className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
+                >
+                    Pending Orders
+                </Link>
+
+                <Link
+                     href="order"
+                     className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
+                >
+                    Orders With Amount Greater Than 1000
+                </Link>
+
+
+
+                <Link
+                    href="order/items"
                     className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300"
                 >
                     Order Items
                 </Link>
 
-                <Link href="order"
-                  className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300">
-                    Paid Orders
-                </Link>
-
-                <Link href="order"  className="block w-full rounded-md border border-gray-500 bg-gray-200 py-1 text-center text-sm text-black font-medium transition hover:bg-gray-300">
-                    Orders With Amount Greater Than 1000
-                </Link>
-
-                <Link href="order" className="w-full rounded-md bg-gray-400 py-3 text-center font-semibold text-black transition hover:bg-gray-300">
-                    Pending Orders
-                </Link>
             </div>
         </>
     );

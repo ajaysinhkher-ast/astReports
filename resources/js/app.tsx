@@ -5,6 +5,9 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import createApp from "@shopify/app-bridge";
 import { getSessionToken } from "@shopify/app-bridge/utilities";
+// import 'ag-grid-community/styles/ag-grid.css';
+// import 'ag-grid-community/styles/ag-theme-alpine.css';
+
 
 const apiKey = "24d99a6a39a4518ec3b77e746d43270b";
 console.log("Shopify API Key:", apiKey);

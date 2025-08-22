@@ -32,7 +32,7 @@ interface Props extends PageProps {
     orderItems: OrderItems[];
 }
 
-const OrdersGrid: React.FC<Props> = ({ orderItems }) => {
+const OrdersItemsGrid: React.FC<Props> = ({ orderItems }) => {
     console.log('Incoming orders:', orderItems);
 
     const colDefs: { field: keyof OrderItems; headerName?: string }[] = [
@@ -80,4 +80,4 @@ const OrdersGrid: React.FC<Props> = ({ orderItems }) => {
     );
 };
 
-export default OrdersGrid;
+export default OrdersItemsGrid;

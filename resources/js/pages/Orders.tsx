@@ -2,11 +2,15 @@ import React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { PageProps } from "@inertiajs/inertia";
-import { Head, Link, usePage } from '@inertiajs/react';
+
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
+
 // Define your Order interface
 interface Order {
+  id: number;
+  user_id: number;
+  name:string;
   email: string;
   customer_id: number;
   fulfillment_status: string;
@@ -21,38 +25,47 @@ interface Order {
   cancel_reason: string | null;
   currency: string;
   payment_method: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
+
 interface Props extends PageProps {
   orders: Order[];
 }
-const OrdersGrid: React.FC<Props> = ({ orders }) => {
+
+const Orders: React.FC<Props> = ({ orders }) => {
+
       console.log("Incoming orders:", orders);
-  const colDefs: { field: keyof Order }[] = [
-    { field: "email" },
-    { field: "customer_id" },
-    { field: "fulfillment_status" },
-    { field: "financial_status" },
-    { field: "subtotal_price" },
-    { field: "total_price" },
-    { field: "total_taxes" },
-    { field: "total_weight" },
-    { field: "total_shipping_price" },
-    { field: "total_discount" },
-    { field: "cancelled_at" },
-    { field: "cancel_reason" },
-    { field: "currency" },
-    { field: "payment_method" },
+      console.log(Array.isArray(orders), orders);
+
+  const colDefs: { field: keyof Order; headerName?: string }[] = [
+    { field: "id" },
+    { field: "user_id", headerName: "User ID" },
+    { field: "name", headerName: "Name" },
+    { field: "email" , headerName: "Email" },
+    { field: "customer_id", headerName: "Customer ID" },
+    { field: "fulfillment_status" , headerName: "Fulfillment Status" },
+    { field: "financial_status" , headerName: "Financial Status" },
+    { field: "subtotal_price", headerName: "Subtotal Price" },
+    { field: "total_price", headerName: "Total Price" },
+    { field: "total_taxes", headerName: "Total Taxes" },
+    { field: "total_weight", headerName: "Total Weight" },
+    { field: "total_shipping_price", headerName: "Total Shipping Price" },
+    { field: "total_discount", headerName: "Total Discount" },
+    { field: "cancelled_at", headerName: "Cancelled At" },
+    { field: "cancel_reason", headerName: "Cancel Reason" },
+    { field: "currency", headerName: "Currency" },
+    { field: "payment_method", headerName: "Payment Method" },
+    { field: "created_at", headerName: "Created At" },
+    { field: "updated_at", headerName: "Updated At" },
+    { field: "deleted_at", headerName: "Deleted At"},
   ];
+
   return (
     <>
     <div style={{padding:'20px'}}>Order details</div>
-    <Link
-    href="/"
-    className="inline-block mb-4 px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition"
-    >
-    &larr; Back to Home
-    </Link>
-    <div className="ag-theme-alpine" style={{ height: 600, width: "100%" ,marginLeft: '20px', marginRight: '20px', marginTop: '20px', marginBottom: '20px'}}>
+    <div className="ag-theme-alpine" style={{ height: 600, width: '100%', padding: '20px'}}>
       <AgGridReact<Order>
         rowData={orders}
         columnDefs={colDefs}
@@ -68,4 +81,5 @@ const OrdersGrid: React.FC<Props> = ({ orders }) => {
     </>
   );
 };
-export default OrdersGrid;
+
+export default Orders;
