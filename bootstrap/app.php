@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'reports/custom', // Exclude the custom report route from CSRF protection
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

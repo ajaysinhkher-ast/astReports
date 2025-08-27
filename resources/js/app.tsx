@@ -9,17 +9,17 @@ import { getSessionToken } from "@shopify/app-bridge/utilities";
 // import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 
-const apiKey = "24d99a6a39a4518ec3b77e746d43270b";
-console.log("Shopify API Key:", apiKey);
+const apiKey = "9f58da97fffaf002d0c9eaa1f81d0564";
+// console.log("Shopify API Key:", apiKey);
 const host = new URLSearchParams(window.location.search).get('host') as string
-console.log("Shopify Host:", host);
+// console.log("Shopify Host:", host);
 const appBridge = createApp({ apiKey, host })
 
-console.log("App Bridge instance:", appBridge);
+// console.log("App Bridge instance:", appBridge);
 
 router.on("before", (event) => {
   const visit = event.detail.visit;
-  console.log("object",visit);
+//   console.log("object",visit);
   // Prevent infinite loops
   if (visit.headers?.["X-Token-Injected"]) return;
 

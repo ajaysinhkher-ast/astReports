@@ -1,83 +1,109 @@
-import React from "react";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import React, { useState } from "react";
+import { Link, router } from "@inertiajs/react";
 import { AgGridReact } from "ag-grid-react";
-import { PageProps } from "@inertiajs/inertia";
+import {
+  QueryBuilder,
+  formatQuery,
+  type Field,
+  type RuleGroupType,
+} from "react-querybuilder";
+import "react-querybuilder/dist/query-builder.css";
 
-// Register AG Grid modules
-ModuleRegistry.registerModules([AllCommunityModule]);
+import { AllCommunityModule, PaginationModule, ModuleRegistry, ColDef } from "ag-grid-community";
+ModuleRegistry.registerModules([AllCommunityModule, PaginationModule]);
 
-// Define your Order interface
 interface Order {
   id: number;
   user_id: number;
-  name:string;
+  name: string;
   email: string;
   customer_id: number;
   fulfillment_status: string;
   financial_status: string;
   subtotal_price: string;
   total_price: string;
-  total_taxes: string;
-  total_weight: string;
-  total_shipping_price: string;
-  total_discount: string;
-  cancelled_at: string | null;
-  cancel_reason: string | null;
-  currency: string;
-  payment_method: string;
   created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
 }
 
-interface Props extends PageProps {
+interface Props {
   orders: Order[];
 }
 
+const fields: Field[] = [
+  { name: "financial_status", label: "Financial Status" },
+  { name: "fulfillment_status", label: "Fulfillment Status" },
+  { name: "subtotal_price", label: "Subtotal Price" },
+  { name: "total_price", label: "Total Price" },
+  { name: "created_at", label: "Created At", type: "date" },
+  { name: "customer_id", label: "Customer ID", type: "number" },
+  { name: "email", label: "Email", type: "string" },
+  { name: "name", label: "Name", type: "string" },
+  { name: "user_id", label: "User ID", type: "number" },
+  { name: "id", label: "Order ID", type: "number" },
+
+];
+
+const initialQuery: RuleGroupType = {
+  combinator: "and",
+  rules: [],
+};
+
 const Orders: React.FC<Props> = ({ orders }) => {
+  const [query, setQuery] = useState(initialQuery);
 
-      console.log("Incoming orders:", orders);
-      console.log(Array.isArray(orders), orders);
+  const runReport = () => {
+  router.get("/orders/filter", { query: JSON.stringify(query) });
+  };
 
-  const colDefs: { field: keyof Order; headerName?: string }[] = [
+  const colDefs: ColDef<Order>[] = [
     { field: "id" },
     { field: "user_id", headerName: "User ID" },
-    { field: "name", headerName: "Name" },
-    { field: "email" , headerName: "Email" },
+    { field: "name" },
+    { field: "email" },
     { field: "customer_id", headerName: "Customer ID" },
-    { field: "fulfillment_status" , headerName: "Fulfillment Status" },
-    { field: "financial_status" , headerName: "Financial Status" },
-    { field: "subtotal_price", headerName: "Subtotal Price" },
-    { field: "total_price", headerName: "Total Price" },
-    { field: "total_taxes", headerName: "Total Taxes" },
-    { field: "total_weight", headerName: "Total Weight" },
-    { field: "total_shipping_price", headerName: "Total Shipping Price" },
-    { field: "total_discount", headerName: "Total Discount" },
-    { field: "cancelled_at", headerName: "Cancelled At" },
-    { field: "cancel_reason", headerName: "Cancel Reason" },
-    { field: "currency", headerName: "Currency" },
-    { field: "payment_method", headerName: "Payment Method" },
-    { field: "created_at", headerName: "Created At" },
-    { field: "updated_at", headerName: "Updated At" },
-    { field: "deleted_at", headerName: "Deleted At"},
+    { field: "fulfillment_status" },
+    { field: "financial_status" },
+    { field: "subtotal_price" },
+    { field: "total_price" },
+    { field: "created_at" },
   ];
 
   return (
     <>
-    <div style={{padding:'20px'}}>Order details</div>
-    <div className="ag-theme-alpine" style={{ height: 600, width: '100%', padding: '20px'}}>
-      <AgGridReact<Order>
-        rowData={orders}
-        columnDefs={colDefs}
-        defaultColDef={{
-          sortable: true,
-          filter: true,
-          resizable: true,
-          width:100,
-          cellStyle: { borderRight: "1px solid #ccc", borderBottom: "1px solid #ccc" }
-        }}
-      />
-    </div>
+      <div>
+        <Link href="/">Go back</Link>
+      </div>
+
+      <h2>Order Report</h2>
+
+      {/* QueryBuilder UI */}
+      <QueryBuilder fields={fields} query={query} onQueryChange={setQuery}
+       controlClassnames={{
+        addRule: "px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-200",
+        addGroup: "px-2 py-1 bg-green-500 text-white rounded hover:bg-green-200",
+        removeGroup: "px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600",
+      }}/>
+
+      <button onClick={runReport} className="btn btn-primary">
+        Apply Filters
+      </button>
+
+      {/* Grid */}
+      <div className="ag-theme-alpine" style={{ height: 500, width: "100%", marginTop: "20px" }}>
+        <AgGridReact<Order>
+          rowData={orders}
+          columnDefs={colDefs}
+          defaultColDef={{
+            sortable: true,
+            filter: true,
+            floatingFilter: true,
+            resizable: true,
+            width: 140,
+          }}
+          pagination={true}
+          paginationPageSize={10}
+        />
+      </div>
     </>
   );
 };
